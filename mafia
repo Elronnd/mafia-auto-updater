@@ -10,31 +10,31 @@ COMMITURL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
 
 # Check for a java installation
 command -v java >/dev/null 2>&1 || {
-	echo "\033[41m\033[30mERROR\033[0m -- You do not have java installed, or it is not in your \$PATH."
-	echo "Please install it using your system's package manager.  The following command"
-	echo "lines are for common systems:"
-	echo "OSX:            \033[7mbrew install java\033[0m"
-	echo "Ubuntu:         \033[7mapt-get install openjdk-7-jdk\033[0m"
-	echo "Debian:         \033[7mapt-get install java\033[0m"
-	echo "Fedora <22:     \033[7myum install java\033[0m"
-	echo "Fedora >=22:    \033[7mdnf install java\033[0m"
-	echo "Most BSDs:      \033[7mpkg install java\033[0m"
+	printf "\033[41m\033[30mERROR\033[0m -- You do not have java installed, or it is not in your \$PATH.\n"
+	printf "Please install it using your system's package manager.  The following command\n"
+	printf "lines are for common systems:\n"
+	printf "OSX:            \033[7mbrew install java\033[0m\n"
+	printf "Ubuntu:         \033[7mapt-get install openjdk-7-jdk\033[0m\n"
+	printf "Debian:         \033[7mapt-get install java\033[0m\n"
+	printf "Fedora <22:     \033[7myum install java\033[0m\n"
+	printf "Fedora >=22:    \033[7mdnf install java\033[0m\n"
+	printf "Most BSDs:      \033[7mpkg install java\033[0m\n"
 	exit 1
 }
 
 # Pretty colors
 yes(){
-	echo "\033[32m\033[1myes\033[0m"
+	printf "\033[32m\033[1myes\033[0m\n"
 }
 no(){
-	echo "\033[31m\033[1mno\033[0m"
+	printf "\033[31m\033[1mno\033[0m\n"
 }
 #actually done
 finished(){
-	echo "\033[35m\033[1mdone!\033[0m"
+	printf "\033[35m\033[1mdone!\033[0m\n"
 }
 check(){
-	echo -n "\033[36m\033[1mChecking\033[0m if \033[33m\033[1m$@\033[0m..."
+	printf "\033[36m\033[1mChecking\033[0m if \033[33m\033[1m$@\033[0m..."
 }
 
 
@@ -64,14 +64,14 @@ if $new_install; then
 fi
 
 if $new_install; then
-	echo -n "\033[36m\033[1mDownloading\033[0m \033[35m\033[4mKoLMafia\033[0m for the \033[33m\033[1mfirst time\033[0m..."
+	printf "\033[36m\033[1mDownloading\033[0m \033[35m\033[4mKoLMafia\033[0m for the \033[33m\033[1mfirst time\033[0m..."
 else
 	check "a new version is available"
 fi
 
 commitmsg=$(curl $COMMITURL 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n")
 getcommit() {
-	echo "\033[32mRevision\033[0m\033[34m \033[31m#${version_number},\033[0m\033[34m \033[4m\"${commitmsg}\"\033[0m"
+	printf "\033[32mRevision\033[0m\033[34m \033[31m#${version_number},\033[0m\033[34m \033[4m\"${commitmsg}\"\033[0m\n"
 }
 
 # Short explanation: fetch builds.kolmafia.us, get line 11 (which is the
@@ -86,10 +86,10 @@ if $new_install; then
 	finished
 else
 	if [ -f $ROOT_DIR/$version_number ]; then
-		echo "\033[35m\033[1mKoLMafia is up to date!\033[0m"
+		printf "\033[35m\033[1mKoLMafia is up to date!\033[0m\n"
 	else
 		yes
-		echo -n "Downloading the latest version of KolMafia..."
+		printf "Downloading the latest version of KolMafia..."
 		rm -f $ROOT_DIR/*
 		curl $download > $ROOT_DIR/$version_number 2>/dev/null
 		finished
@@ -97,5 +97,5 @@ else
 fi
 getcommit
 echo
-echo "\033[36m\033[1mRunning\033[0m \033[35m\033[4mKoLMafia\033[0m."
+printf "\033[36m\033[1mRunning\033[0m \033[35m\033[4mKoLMafia\033[0m.\n"
 java -jar $ROOT_DIR/$version_number $@
