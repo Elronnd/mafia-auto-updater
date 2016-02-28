@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=KoL Mafia auto updater
+Exec=/home/elronnd/bin/mafia
+Type=Application
+Categories=Games
