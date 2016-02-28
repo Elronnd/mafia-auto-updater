@@ -6,6 +6,7 @@ else
 fi
 ROOT_DIR=${MAFIA_DIR}/program
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
+COMMITURL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
 
 # Check for a java installation
 command -v java >/dev/null 2>&1 || {
@@ -68,6 +69,11 @@ else
 	check "a new version is available"
 fi
 
+commitmsg=$(curl $COMMITURL 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n")
+getcommit() {
+	echo "\033[32mRevision\033[0m\033[34m \033[31m#${version_number},\033[0m\033[34m \033[4m\"${commitmsg}\"\033[0m"
+}
+
 # Short explanation: fetch builds.kolmafia.us, get line 11 (which is the
 # one with the download links), strip away everything before the URL
 # (chop off the first 427 chars), then chop everything after the URL (get
@@ -89,6 +95,7 @@ else
 		finished
 	fi
 fi
+getcommit
 echo
 echo "\033[36m\033[1mRunning\033[0m \033[35m\033[4mKoLMafia\033[0m."
 java -jar $ROOT_DIR/$version_number $@
