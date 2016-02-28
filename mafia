@@ -89,7 +89,7 @@ else
 		printf "\033[35m\033[1mKoLMafia is up to date!\033[0m\n"
 	else
 		yes
-		printf "Downloading the latest version of KolMafia..."
+		printf "\033[36m\033[1mDownloading\033[0m the \033[33m\033[1mlatest version of\033[0m \033[35m\033[4mKoLMafia\033[0m..."
 		rm -f $ROOT_DIR/*
 		curl $download > $ROOT_DIR/$version_number 2>/dev/null
 		finished
