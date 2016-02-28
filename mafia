@@ -1,7 +1,7 @@
 #!/bin/sh
 MAFIA_DIR=${HOME}/.kolmafia
 ROOT_DIR=${HOME}/.mafia_updater
-URL=http://builds.kolmafia.us/
+URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
 
 # Check for a java installation
 command -v java >/dev/null 2>&1 || {
@@ -49,12 +49,12 @@ else
 	echo -n "Checking if a new version is available..."
 fi
 
-# Short explanation: fetch builds.kolmafia.us, get line 60 (which is the
+# Short explanation: fetch builds.kolmafia.us, get line 11 (which is the
 # one with the download links), strip away everything before the URL
-# (chop off the first 87 chars), then chop everything after the URL (get
-# only the first 44 chars).
-download=$(curl $URL 2>/dev/null|sed -n 60p|cut -c 87-|cut -c 1-44)
-version_number=$(echo $download|cut -c 36-|cut -c 1-5)
+# (chop off the first 427 chars), then chop everything after the URL (get
+# only the first 18 chars).
+download=$URL/$(curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18)
+version_number=$(echo $download|cut -c 80-|cut -c 1-5)
 
 if $new_install; then
 	curl $download > $ROOT_DIR/$version_number 2>/dev/null
