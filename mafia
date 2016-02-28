@@ -1,5 +1,9 @@
 #!/bin/sh
-MAFIA_DIR=${HOME}/.kolmafia
+if [ $(uname -s) = Darwin ]; then
+	MAFIA_DIR=${HOME}/Library/Application Support/KoLmafia
+else
+	MAFIA_DIR=${HOME}/.kolmafia
+fi
 ROOT_DIR=${HOME}/.mafia_updater
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
 
