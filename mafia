@@ -4,7 +4,7 @@ if [ $(uname -s) = Darwin ]; then
 else
 	MAFIA_DIR=${HOME}/.kolmafia
 fi
-ROOT_DIR=${HOME}/.mafia_updater
+ROOT_DIR=${MAFIA_DIR}/program
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
 
 # Check for a java installation
