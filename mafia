@@ -1,8 +1,8 @@
 #!/bin/sh
 if [ $(uname -s) = Darwin ]; then
-	MAFIA_DIR=${HOME}/Library/Application Support/KoLmafia
+	MAFIA_DIR="${HOME}/Library/Application Support/KoLmafia"
 else
-	MAFIA_DIR=${HOME}/.kolmafia
+	MAFIA_DIR="${HOME}/.kolmafia"
 fi
 ROOT_DIR=${MAFIA_DIR}/program
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
@@ -21,36 +21,51 @@ command -v java >/dev/null 2>&1 || {
 	exit 1
 }
 
+# Pretty colors
+yes(){
+	echo "\033[32m\033[1myes\033[0m"
+}
+no(){
+	echo "\033[31m\033[1mno\033[0m"
+}
+#actually done
+finished(){
+	echo "\033[35m\033[1mdone!\033[0m"
+}
+check(){
+	echo -n "\033[36m\033[1mChecking\033[0m if \033[33m\033[1m$@\033[0m..."
+}
+
 
 # It's probably safe to just assume that if the dirs are there, the app is
 # installed.  Yes, someone could tinker with this, but this is PROBABLY
 # reasonable.
-echo -n "Checking if KoLMafia is installed..."
+check "\033[0m\033[35m\033[4mKoLMafia\033[0m\033[1m\033[33m is installed"
 if [ -d $MAFIA_DIR ]; then
-	echo "yes"
+	yes
 	mafia_install=true
 else
-	echo "no"
+	no
 	mafia_install=false
 fi
 
-echo -n "Checking if Mafia autoupdater is installed..."
+check "Mafia autoupdater is installed"
 if [ -d $ROOT_DIR ]; then
-	echo "yes"
+	yes
 	new_install=false
 else
-	echo "no"
+	no
 	new_install=true
 fi
 
 if $new_install; then
-	mkdir $ROOT_DIR
+	mkdir -p $ROOT_DIR
 fi
 
 if $new_install; then
-	echo -n "Downloading KoLMafia for the first time..."
+	echo -n "\033[36m\033[1mDownloading\033[0m \033[35m\033[4mKoLMafia\033[0m for the \033[33m\033[1mfirst time\033[0m..."
 else
-	echo -n "Checking if a new version is available..."
+	check "a new version is available"
 fi
 
 # Short explanation: fetch builds.kolmafia.us, get line 11 (which is the
@@ -62,17 +77,18 @@ version_number=$(echo $download|cut -c 80-|cut -c 1-5)
 
 if $new_install; then
 	curl $download > $ROOT_DIR/$version_number 2>/dev/null
-	echo "done!"
+	finished
 else
 	if [ -f $ROOT_DIR/$version_number ]; then
-		echo "KolMafia is up to date!"
+		echo "\033[35m\033[1mKoLMafia is up to date!\033[0m"
 	else
-		echo "yes"
+		yes
 		echo -n "Downloading the latest version of KolMafia..."
 		rm -f $ROOT_DIR/*
 		curl $download > $ROOT_DIR/$version_number 2>/dev/null
-		echo "done!"
+		finished
 	fi
 fi
-echo "Running KoLMafia."
+echo
+echo "\033[36m\033[1mRunning\033[0m \033[35m\033[4mKoLMafia\033[0m."
 java -jar $ROOT_DIR/$version_number $@
