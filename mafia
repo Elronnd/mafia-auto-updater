@@ -8,40 +8,57 @@ ROOT_DIR=${MAFIA_DIR}/program
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
 COMMITURL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
 
+# colour names
+bright_red=$(printf "\033[31m\033[1m")
+bright_green=$(printf "\033[32m\033[1m")
+bright_yellow=$(printf "\033[33m\033[1m")
+bright_blue=$(printf "\033[34m\033[1m")
+bright_magenta=$(printf "\033[35m\033[1m")
+bright_cyan=$(printf "\033[36m\033[1m")
+red=$(printf "\033[31m")
+green=$(printf "\033[32m")
+yellow=$(printf "\033[33m")
+blue=$(printf "\033[34m")
+magenta=$(printf "\033[35m")
+cyan=$(printf "\033[36m")
+reverse=$(printf "\033[7m")
+normal=$(printf "\033[0m")
+underline=$(printf "\033[4m")
+
 # Check for a java installation
 command -v java >/dev/null 2>&1 || {
-	printf "\033[41m\033[30mERROR\033[0m -- You do not have java installed, or it is not in your \$PATH.\n"
+	printf "${reverse}${bright_red}ERROR${normal} -- You do not have java installed, or it is not in your \$PATH.\n"
 	printf "Please install it using your system's package manager.  The following command\n"
 	printf "lines are for common systems:\n"
-	printf "OSX:            \033[7mbrew install java\033[0m\n"
-	printf "Ubuntu:         \033[7mapt-get install openjdk-7-jdk\033[0m\n"
-	printf "Debian:         \033[7mapt-get install java\033[0m\n"
-	printf "Fedora <22:     \033[7myum install java\033[0m\n"
-	printf "Fedora >=22:    \033[7mdnf install java\033[0m\n"
-	printf "Most BSDs:      \033[7mpkg install java\033[0m\n"
+	printf "OSX:            ${reverse}brew install java${normal}\n"
+	printf "Ubuntu:         ${reverse}apt-get install openjdk-8-jdk${normal}\n"
+	printf "Debian:         ${reverse}apt-get install java${normal}\n"
+	printf "Fedora <22:     ${reverse}yum install java${normal}\n"
+	printf "Fedora >=22:    ${reverse}dnf install java${normal}\n"
+	printf "Most BSDs:      ${reverse}pkg install java${normal}\n"
 	exit 1
 }
 
-# Pretty colors
+# Pretty colours
 yes(){
-	printf "\033[32m\033[1myes\033[0m\n"
+	printf "${bright_green}yes${normal}\n"
 }
 no(){
-	printf "\033[31m\033[1mno\033[0m\n"
+	printf "${bright_red}no${normal}\n"
 }
 #actually done
 finished(){
-	printf "\033[35m\033[1mdone!\033[0m\n"
+	printf "${bright_magenta}done!${normal}\n"
 }
 check(){
-	printf "\033[36m\033[1mChecking\033[0m if \033[33m\033[1m$@\033[0m..."
+	printf "${bright_cyan}Checking${normal} if ${bright_yellow}$@${normal}..."
 }
 
 
 # It's probably safe to just assume that if the dirs are there, the app is
 # installed.  Yes, someone could tinker with this, but this is PROBABLY
 # reasonable.
-check "\033[0m\033[35m\033[4mKoLMafia\033[0m\033[1m\033[33m is installed"
+check "${normal}${magenta}${underline}KoLMafia${normal} ${bright_yellow}is installed"
 if [ -d $MAFIA_DIR ]; then
 	yes
 	mafia_install=true
@@ -64,7 +81,7 @@ if $new_install; then
 fi
 
 if $new_install; then
-	printf "\033[36m\033[1mDownloading\033[0m \033[35m\033[4mKoLMafia\033[0m for the \033[33m\033[1mfirst time\033[0m..."
+	printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLMafia${normal} for the ${bright_yellow}first time${normal}..."
 else
 	check "a new version is available"
 fi
@@ -72,7 +89,7 @@ fi
 
 commitmsg=$(curl $COMMITURL 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g" )
 getcommit() {
-	printf "\033[32mRevision\033[0m\033[34m \033[31m#${version_number},\033[0m\033[34m \"\033[4m${commitmsg}\033[0m\033[34m\"\033[0m\n"
+	printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
 }
 
 # Short explanation: fetch builds.kolmafia.us, get line 11 (which is the
@@ -81,6 +98,11 @@ getcommit() {
 # only the first 18 chars).
 download=$URL/$(curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18)
 version_number=$(echo $download|cut -c 80-|cut -c 1-5)
+if [ ! $version_number = $(sed -n 1p < $MAFIA_DIR/version) ]; then
+	new_version=true
+else
+	new_version=false
+fi
 
 
 if $new_install; then
@@ -88,28 +110,30 @@ if $new_install; then
 	curl $download > $ROOT_DIR/$version_number.new 2>/dev/null
 	finished
 else
-	if [ -f $ROOT_DIR/$version_number ]; then
-		printf "\033[35m\033[1mKoLMafia is up to date!\033[0m\n"
-		new_file=false
-	else
+	if $new_version; then
 		yes
 		check "the previous session was interrupted"
 		if [ -f "$ROOT_DIR/$version_number.new" ]; then
-			# don't use "yes" because we want it red.  Same for "no"
-			printf "\033[31myes\n"
+			# don't use yes() because we want it red.  Same for "no"
+			printf "${bright_red}yes\n"
 			rm -f $ROOT_DIR/$version_number.new
 		else
-			printf "\033[32mno\n"
+			printf "${bright_green}no\n"
 		fi
 		new_file=true
-		printf "\033[36m\033[1mDownloading\033[0m the \033[33m\033[1mlatest version of\033[0m \033[35m\033[4mKoLMafia\033[0m..."
+		printf "${bright_cyan}Downloading${normal} the ${bright_yellow}latest version of${normal} ${magenta}${underline}KoLMafia${normal}..."
 		rm -f $ROOT_DIR/*
 		curl $download > $ROOT_DIR/$version_number.new 2>/dev/null
 		finished
+	else
+		printf "${bright_magenta}KoLMafia is up to date!${normal}\n"
+		new_file=false
 	fi
+
 fi
 getcommit
+printf "$version_number\n$commitmsg" > $MAFIA_DIR/version
 echo
-printf "\033[36m\033[1mRunning\033[0m \033[35m\033[4mKoLMafia\033[0m.\n"
+printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLMafia${normal}.\n"
 if $new_file; then mv $ROOT_DIR/$version_number.new $ROOT_DIR/$version_number; fi
 java -jar $ROOT_DIR/$version_number $@
