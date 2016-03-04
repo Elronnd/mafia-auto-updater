@@ -80,10 +80,26 @@ if $new_install; then
 	mkdir -p $ROOT_DIR
 fi
 
+
+check "the previous session was interrupted"
+if [ -f $ROOT_DIR/*new ]; then
+	# don't use yes() because we want it red.  Same for "no"
+	printf "${bright_red}yes\n"
+	rm -f $ROOT_DIR/$version_number.new
+	session_interrupted=true
+else
+	printf "${bright_green}no\n"
+	session_interrupted=false
+fi
+
 if $new_install; then
 	printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLMafia${normal} for the ${bright_yellow}first time${normal}..."
 else
-	check "a new version is available"
+	if $session_interrupted; then
+		printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLMafia${normal} ${bright_yellow}again${normal}..."
+	else
+		check "a new version is available"
+	fi
 fi
 
 
@@ -105,7 +121,7 @@ else
 fi
 
 
-if $new_install; then
+if ( $new_install || $session_interrupted ); then
 	new_file=true
 	curl $download > $ROOT_DIR/$version_number.new 2>/dev/null
 	finished
