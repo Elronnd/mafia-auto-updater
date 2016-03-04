@@ -69,6 +69,7 @@ else
 	check "a new version is available"
 fi
 
+
 commitmsg=$(curl $COMMITURL 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g" )
 getcommit() {
 	printf "\033[32mRevision\033[0m\033[34m \033[31m#${version_number},\033[0m\033[34m \"\033[4m${commitmsg}\033[0m\033[34m\"\033[0m\n"
@@ -81,21 +82,34 @@ getcommit() {
 download=$URL/$(curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18)
 version_number=$(echo $download|cut -c 80-|cut -c 1-5)
 
+
 if $new_install; then
-	curl $download > $ROOT_DIR/$version_number 2>/dev/null
+	new_file=true
+	curl $download > $ROOT_DIR/$version_number.new 2>/dev/null
 	finished
 else
 	if [ -f $ROOT_DIR/$version_number ]; then
 		printf "\033[35m\033[1mKoLMafia is up to date!\033[0m\n"
+		new_file=false
 	else
 		yes
+		check "the previous session was interrupted"
+		if [ -f "$ROOT_DIR/$version_number.new" ]; then
+			# don't use "yes" because we want it red.  Same for "no"
+			printf "\033[31myes\n"
+			rm -f $ROOT_DIR/$version_number.new
+		else
+			printf "\033[32mno\n"
+		fi
+		new_file=true
 		printf "\033[36m\033[1mDownloading\033[0m the \033[33m\033[1mlatest version of\033[0m \033[35m\033[4mKoLMafia\033[0m..."
 		rm -f $ROOT_DIR/*
-		curl $download > $ROOT_DIR/$version_number 2>/dev/null
+		curl $download > $ROOT_DIR/$version_number.new 2>/dev/null
 		finished
 	fi
 fi
 getcommit
 echo
 printf "\033[36m\033[1mRunning\033[0m \033[35m\033[4mKoLMafia\033[0m.\n"
+if $new_file; then mv $ROOT_DIR/$version_number.new $ROOT_DIR/$version_number; fi
 java -jar $ROOT_DIR/$version_number $@
