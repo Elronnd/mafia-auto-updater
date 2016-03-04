@@ -69,7 +69,7 @@ else
 	check "a new version is available"
 fi
 
-commitmsg=$(curl $COMMITURL 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n")
+commitmsg=$(curl $COMMITURL 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g" )
 getcommit() {
 	printf "\033[32mRevision\033[0m\033[34m \033[31m#${version_number},\033[0m\033[34m \033[4m\"${commitmsg}\"\033[0m\n"
 }
