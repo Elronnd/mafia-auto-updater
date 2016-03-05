@@ -72,7 +72,7 @@ else
 	mafia_install=false
 fi
 
-check "Mafia autoupdater is installed"
+check "${normal}${magenta}${underline}Mafia autoupdater${normal} ${bright_yellow}is installed"
 if [ -d $ROOT_DIR ]; then
 	yes
 	new_install=false
