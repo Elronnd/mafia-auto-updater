@@ -5,8 +5,13 @@ else
 	MAFIA_DIR="${HOME}/.kolmafia"
 fi
 ROOT_DIR=${MAFIA_DIR}/program
+VERSION_FILE=${MAFIA_DIR}/version
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
 COMMITURL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
+if [ -f $VERSION_FILE ]; then
+	version_number_old=$(sed -n 1p < $VERSION_FILE)
+	commitmsg_old=$(sed -n 2p < $VERSION_FILE)
+fi
 
 # colour names
 bright_red=$(printf "\033[31m\033[1m")
@@ -103,9 +108,13 @@ else
 fi
 
 
-commitmsg=$(curl $COMMITURL 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g" )
+commitmsg=$(curl ${COMMITURL} 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g" )
 getcommit() {
-	printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
+	if ( ${new_install} || ( ! ${new_version} ) ); then
+		printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
+	else
+		printf "${green}Fast-forward${normal} ${red}$((${version_number}-${version_number_old}))${normal} ${yellow}commits${normal}: ${red}#${version_number_old}${normal} ${blue}(${underline}${commitmsg_old}${normal}${blue})${normal} to ${red}#${version_number}${normal} ${blue}(${underline}${commitmsg}${normal}${blue})${normal}\n"
+	fi
 }
 
 # Short explanation: fetch builds.kolmafia.us, get line 11 (which is the
@@ -114,7 +123,7 @@ getcommit() {
 # only the first 18 chars).
 download=$URL/$(curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18)
 version_number=$(echo $download|cut -c 80-|cut -c 1-5)
-if [ ! $version_number = $(sed -n 1p < $MAFIA_DIR/version) ]; then
+if [ ! $version_number = $version_number_old ]; then
 	new_version=true
 else
 	new_version=false
@@ -148,7 +157,7 @@ else
 
 fi
 getcommit
-printf "$version_number\n$commitmsg" > $MAFIA_DIR/version
+printf "${version_number}\n${commitmsg}" > $VERSION_FILE
 echo
 printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLMafia${normal}.\n"
 if $new_file; then mv $ROOT_DIR/$version_number.new $ROOT_DIR/$version_number; fi
