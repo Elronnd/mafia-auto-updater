@@ -63,7 +63,7 @@ check(){
 # It's probably safe to just assume that if the dirs are there, the app is
 # installed.  Yes, someone could tinker with this, but this is PROBABLY
 # reasonable.
-check "${normal}${magenta}${underline}KoLMafia${normal} ${bright_yellow}is installed"
+check "${normal}${magenta}${underline}KoLmafia${normal} ${bright_yellow}is installed"
 if [ -d $MAFIA_DIR ]; then
 	yes
 	mafia_install=true
@@ -98,10 +98,10 @@ else
 fi
 
 if $new_install; then
-	printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLMafia${normal} for the ${bright_yellow}first time${normal}..."
+	printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLmafia${normal} for the ${bright_yellow}first time${normal}..."
 else
 	if $session_interrupted; then
-		printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLMafia${normal} ${bright_yellow}again${normal}..."
+		printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLmafia${normal} ${bright_yellow}again${normal}..."
 	else
 		check "a new version is available"
 	fi
@@ -138,12 +138,12 @@ else
 	if $new_version; then
 		yes
 		new_file=true
-		printf "${bright_cyan}Downloading${normal} the ${bright_yellow}latest version of${normal} ${magenta}${underline}KoLMafia${normal}..."
+		printf "${bright_cyan}Downloading${normal} the ${bright_yellow}latest version of${normal} ${magenta}${underline}KoLmafia${normal}..."
 		rm -f $ROOT_DIR/*
 		curl $download > $ROOT_DIR/$version_number.new 2>/dev/null
 		finished
 	else
-		printf "${bright_magenta}KoLMafia is up to date!${normal}\n"
+		printf "${bright_magenta}KoLmafia is up to date!${normal}\n"
 		new_file=false
 	fi
 
@@ -151,6 +151,6 @@ fi
 getcommit
 printf "${version_number}\n${commitmsg}" > $VERSION_FILE
 echo
-printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLMafia${normal}.\n"
+printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLmafia${normal}.\n"
 if $new_file; then mv $ROOT_DIR/$version_number.new $ROOT_DIR/$version_number; fi
 java -jar $ROOT_DIR/$version_number $@
