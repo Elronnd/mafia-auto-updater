@@ -137,14 +137,6 @@ if ( $new_install || $session_interrupted ); then
 else
 	if $new_version; then
 		yes
-		check "the previous session was interrupted"
-		if [ -f "$ROOT_DIR/$version_number.new" ]; then
-			# don't use yes() because we want it red.  Same for "no"
-			printf "${bright_red}yes\n"
-			rm -f $ROOT_DIR/$version_number.new
-		else
-			printf "${bright_green}no\n"
-		fi
 		new_file=true
 		printf "${bright_cyan}Downloading${normal} the ${bright_yellow}latest version of${normal} ${magenta}${underline}KoLMafia${normal}..."
 		rm -f $ROOT_DIR/*
