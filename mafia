@@ -153,4 +153,4 @@ printf "${version_number}\n${commitmsg}" > $VERSION_FILE
 echo
 printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLmafia${normal}.\n"
 if $new_file; then mv $ROOT_DIR/$version_number.new $ROOT_DIR/$version_number; fi
-java -jar $ROOT_DIR/$version_number $@
+java -jar $ROOT_DIR/$version_number $@ || mv $ROOT_DIR/$version_number $ROOT_DIR/$version_number.new
