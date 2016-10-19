@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ $(uname -s) = Darwin ]; then
+if [ `uname -s` = Darwin ]; then
 	MAFIA_DIR="${HOME}/Library/Application Support/KoLmafia"
 else
 	MAFIA_DIR="${HOME}/.kolmafia"
@@ -9,26 +9,26 @@ VERSION_FILE=${MAFIA_DIR}/version
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
 COMMITURL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
 if [ -f $VERSION_FILE ]; then
-	version_number_old=$(sed -n 1p < $VERSION_FILE)
-	commitmsg_old=$(sed -n 2p < $VERSION_FILE)
+	version_number_old=`sed -n 1p < $VERSION_FILE`
+	commitmsg_old=`sed -n 2p < $VERSION_FILE`
 fi
 
 # colour names
-bright_red=$(printf "\033[31m\033[1m")
-bright_green=$(printf "\033[32m\033[1m")
-bright_yellow=$(printf "\033[33m\033[1m")
-bright_blue=$(printf "\033[34m\033[1m")
-bright_magenta=$(printf "\033[35m\033[1m")
-bright_cyan=$(printf "\033[36m\033[1m")
-red=$(printf "\033[31m")
-green=$(printf "\033[32m")
-yellow=$(printf "\033[33m")
-blue=$(printf "\033[34m")
-magenta=$(printf "\033[35m")
-cyan=$(printf "\033[36m")
-reverse=$(printf "\033[7m")
-normal=$(printf "\033[0m")
-underline=$(printf "\033[4m")
+bright_red=`printf "\033[31m\033[1m"`
+bright_green=`printf "\033[32m\033[1m"`
+bright_yellow=`printf "\033[33m\033[1m"`
+bright_blue=`printf "\033[34m\033[1m"`
+bright_magenta=`printf "\033[35m\033[1m"`
+bright_cyan=`printf "\033[36m\033[1m"`
+red=`printf "\033[31m"`
+green=`printf "\033[32m"`
+yellow=`printf "\033[33m"`
+blue=`printf "\033[34m"`
+magenta=`printf "\033[35m"`
+cyan=`printf "\033[36m"`
+reverse=`printf "\033[7m"`
+normal=`printf "\033[0m"`
+underline=`printf "\033[4m"`
 
 # Check for a java installation
 command -v java >/dev/null 2>&1 || {
@@ -108,12 +108,18 @@ else
 fi
 
 
-commitmsg=$(curl ${COMMITURL} 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g" )
+commitmsg=`curl ${COMMITURL} 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g"`
 getcommit() {
 	if ( ${new_install} || ( ! ${new_version} ) ); then
 		printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
 	else
-		printf "${green}Fast-forward${normal} ${red}$((${version_number}-${version_number_old}))${normal} ${yellow}commits${normal}: ${red}#${version_number_old}${normal} ${blue}(${underline}${commitmsg_old}${normal}${blue})${normal} to ${red}#${version_number}${normal} ${blue}(${underline}${commitmsg}${normal}${blue})${normal}\n"
+		printf "${green}Fast-forward${normal} "
+
+		# # of commits commits
+		printf "${red}`(${version_number}-${version_number_old})`${normal} ${yellow}commits${normal}: "
+
+		# #oldver (oldmsg) to #newver (newmsg)
+		printf "${red}#${version_number_old}${normal} ${blue}(${underline}${commitmsg_old}${normal}${blue})${normal} to ${red}#${version_number}${normal} ${blue}(${underline}${commitmsg}${normal}${blue})${normal}\n"
 	fi
 }
 
@@ -121,8 +127,8 @@ getcommit() {
 # one with the download links), strip away everything before the URL
 # (chop off the first 427 chars), then chop everything after the URL (get
 # only the first 18 chars).
-download=$URL/$(curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18)
-version_number=$(echo $download|cut -c 80-|cut -c 1-5)
+download=$URL/`curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18`
+version_number=`echo $download|cut -c 80-|cut -c 1-5`
 if [ ! $version_number = $version_number_old ]; then
 	new_version=true
 else
@@ -148,6 +154,7 @@ else
 	fi
 
 fi
+
 getcommit
 printf "${version_number}\n${commitmsg}" > $VERSION_FILE
 echo
