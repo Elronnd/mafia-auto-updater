@@ -1,16 +1,21 @@
 #!/bin/sh
+
 if [ `uname -s` = Darwin ]; then
 	MAFIA_DIR="${HOME}/Library/Application Support/KoLmafia"
 else
 	MAFIA_DIR="${HOME}/.kolmafia"
 fi
+
 ROOT_DIR=${MAFIA_DIR}/program
 VERSION_FILE=${MAFIA_DIR}/version
 URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
 COMMITURL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
+
 if [ -f $VERSION_FILE ]; then
 	version_number_old=`sed -n 1p < $VERSION_FILE`
 	commitmsg_old=`sed -n 2p < $VERSION_FILE`
+else
+	version_number_old=0
 fi
 
 # colour names
@@ -51,7 +56,7 @@ yes(){
 no(){
 	printf "${bright_red}no${normal}\n"
 }
-#actually done
+# prints done, but that's a keyword
 finished(){
 	printf "${bright_magenta}done!${normal}\n"
 }
@@ -72,32 +77,38 @@ else
 	mafia_install=false
 fi
 
-check "${normal}${magenta}${underline}Mafia autoupdater${normal} ${bright_yellow}is installed"
-if [ -d $ROOT_DIR ]; then
-	yes
-	new_install=false
+if $mafia_install; then
+	check "${normal}${magenta}${underline}Mafia autoupdater${normal} ${bright_yellow}is installed"
+	if [ -d $ROOT_DIR ]; then
+		yes
+		new_updater_install=false
+	else
+		no
+		new_updater_install=true
+	fi
 else
-	no
-	new_install=true
+	new_updater_install=true
 fi
 
-if $new_install; then
+if $new_updater_install; then
 	mkdir -p $ROOT_DIR
 fi
 
 
-check "the previous session was interrupted"
-if [ -f $ROOT_DIR/*new ]; then
-	# don't use yes() because we want it red.  Same for "no"
-	printf "${bright_red}yes\n"
-	rm -f $ROOT_DIR/$version_number.new
-	session_interrupted=true
-else
-	printf "${bright_green}no\n"
-	session_interrupted=false
+if ( ! $new_updater_install ); then
+	check "the previous session was interrupted"
+	if [ ! -x "$ROOT_DIR/*new" ]; then
+		# don't use yes() because we want it red.  Same for "no"
+		printf "${bright_red}yes\n"
+		rm -f $ROOT_DIR/*.new
+		session_interrupted=true
+	else
+		printf "${bright_green}no\n"
+		session_interrupted=false
+	fi
 fi
 
-if $new_install; then
+if $new_updater_install; then
 	printf "${bright_cyan}Downloading${normal} ${magenta}${underline}KoLmafia${normal} for the ${bright_yellow}first time${normal}..."
 else
 	if $session_interrupted; then
@@ -110,7 +121,7 @@ fi
 
 commitmsg=`curl ${COMMITURL} 2>/dev/null | sed -n 14p | cut -c 13- | tr -d "\n" | sed "s/\&amp;/\&/g" | sed "s/\&#039;/'/g"`
 getcommit() {
-	if ( ${new_install} || ( ! ${new_version} ) ); then
+	if ( ${new_updater_install} || ( ! ${new_version} ) ); then
 		printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
 	else
 		printf "${green}Fast-forward${normal} "
@@ -129,14 +140,16 @@ getcommit() {
 # only the first 18 chars).
 download=$URL/`curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18`
 version_number=`echo $download|cut -c 80-|cut -c 1-5`
-if [ ! $version_number = $version_number_old ]; then
-	new_version=true
-else
-	new_version=false
+if ( ! $new_updater_install ); then
+	if [ ! $version_number = $version_number_old ]; then
+		new_version=true
+	else
+		new_version=false
+	fi
 fi
 
 
-if ( $new_install || $session_interrupted ); then
+if ( $new_updater_install || $session_interrupted ); then
 	new_file=true
 	curl $download > $ROOT_DIR/$version_number.new 2>/dev/null
 	finished
