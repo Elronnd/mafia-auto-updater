@@ -126,8 +126,12 @@ getcommit() {
 	else
 		printf "${green}Fast-forward${normal} "
 
+		no_commits="$((${version_number}-${version_number_old}))"
+
 		# # of commits commits
-		printf "${red}$((${version_number}-${version_number_old}))${normal} ${yellow}commits${normal}: "
+		printf "${red}${no_commits}${normal} ${yellow}commit"
+		if [ ! "$no_commits" -eq 1 ]; then printf "s"; fi
+		printf "${normal}: "
 
 		# #oldver (oldmsg) to #newver (newmsg)
 		printf "${red}#${version_number_old}${normal} ${blue}(${underline}${commitmsg_old}${normal}${blue})${normal} to ${red}#${version_number}${normal} ${blue}(${underline}${commitmsg}${normal}${blue})${normal}\n"
