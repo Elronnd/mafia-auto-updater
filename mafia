@@ -35,11 +35,42 @@ reverse=`printf "\033[7m"`
 normal=`printf "\033[0m"`
 underline=`printf "\033[4m"`
 
+java_path=`command -v java`
+
+lowercase() {
+	echo "$@" | tr "[:upper:]" "[:lower:]"
+}
+
+parseonearg() {
+	case $1 in
+		--help|-help|--h|-h) echo "--Help";;
+		--version|-version|--v|-v) echo "--Version";;
+#		--
+	esac
+}
+
+argparse() {
+	i=0
+	myargs=`lowercase $@`
+	mafia_args=""
+	for arg in "$@"; do
+		i=$((i+1))
+		if [ `lowercase $arg` = "--java" ]; then
+			java_path=`eval echo \$$i`
+			break
+		fi
+	done
+}
+
+argparse "$@"
+
+
+
 # Check for a java installation
-command -v java >/dev/null 2>&1 || {
+[ -f $java_path ] || {
 	printf "${reverse}${bright_red}ERROR${normal} -- You do not have java installed, or it is not in your \$PATH.\n"
-	printf "Please install it using your system's package manager.  The following command\n"
-	printf "lines are for common systems:\n"
+	printf "If it is installed in a standard location, please specify \"--java /path/to/java\" on the command line.\n"
+	printf "Otherwise, please install it using your system's package manager.  The following command lines are for common systems:\n"
 	printf "OSX:            ${reverse}brew install java${normal}\n"
 	printf "Ubuntu:         ${reverse}apt-get install openjdk-8-jdk${normal}\n"
 	printf "Debian:         ${reverse}apt-get install java${normal}\n"
@@ -177,8 +208,8 @@ printf "${version_number}\n${commitmsg}" > $VERSION_FILE
 printf "\n"
 printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLmafia${normal}.\n"
 if $new_file; then mv $ROOT_DIR/$version_number.part $ROOT_DIR/$version_number; fi
-java -jar $ROOT_DIR/$version_number $@ || {
+$java_path -jar $ROOT_DIR/$version_number $@ || {
 	printf "${bright_red}${reverse}Oops!${normal}  ${bright_red}This shouldn't happen!  It seems that the download was corrupted.  Please re-run KoLMafia autoupdater.  If the problem isn't fixed, try removing the $MAFIA_DIR dir or reinstalling java.\n"
 6	mv $ROOT_DIR/$version_number $ROOT_DIR/$version_number-broken
-	exit 1
+	exit 2
 }
