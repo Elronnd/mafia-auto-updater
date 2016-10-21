@@ -127,7 +127,7 @@ fi
 
 
 if ( ! $new_updater_install ); then
-	check "the previous session was interrupted"
+	check "the previous download was interrupted"
 	if ( ls $ROOT_DIR/*.part > /dev/null 2>&1 ); then
 		# don't use yes() because we want it red.  Same for "no"
 		printf "${bright_red}yes${normal}\n"
