@@ -36,6 +36,7 @@ normal=`printf "\033[0m"`
 underline=`printf "\033[4m"`
 
 java_path=`command -v java`
+norun=false
 
 lowercase() {
 	echo "$@" | tr "[:upper:]" "[:lower:]"
@@ -55,6 +56,7 @@ argparse() {
 	mafia_args=""
 	for arg in "$@"; do
 		i=$((i+1))
+		if [ `lowercase $arg` = "--norun" ]; then norun=true; fi
 		if [ `lowercase $arg` = "--java" ]; then
 			java_path=`eval echo \$$i`
 			break
@@ -203,13 +205,19 @@ else
 
 fi
 
-getcommit
+if ( ! $norun ); then
+	getcommit
+	printf "\n"
+fi
+
 printf "${version_number}\n${commitmsg}" > $VERSION_FILE
-printf "\n"
-printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLmafia${normal}.\n"
 if $new_file; then mv $ROOT_DIR/$version_number.part $ROOT_DIR/$version_number; fi
-$java_path -jar $ROOT_DIR/$version_number $@ || {
-	printf "${bright_red}${reverse}Oops!${normal}  ${bright_red}This shouldn't happen!  It seems that the download was corrupted.  Please re-run KoLMafia autoupdater.  If the problem isn't fixed, try removing the $MAFIA_DIR dir or reinstalling java.\n"
-6	mv $ROOT_DIR/$version_number $ROOT_DIR/$version_number-broken
-	exit 2
-}
+
+if ( ! $norun ); then
+	printf "${bright_cyan}Running${normal} ${magenta}${underline}KoLmafia${normal}.\n"
+	$java_path -jar $ROOT_DIR/$version_number $@ || {
+		printf "${bright_red}${reverse}Oops!${normal}  ${bright_red}This shouldn't happen!  It seems that the download was corrupted.  Please re-run KoLMafia autoupdater.  If the problem isn't fixed, try removing the $MAFIA_DIR dir or reinstalling java.\n"
+6		mv $ROOT_DIR/$version_number $ROOT_DIR/$version_number-broken
+		exit 2
+	}
+fi
