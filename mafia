@@ -152,7 +152,7 @@ else
 fi
 
 
-commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 18p | sed -e "s/&lt;br>//g" | cut -c 13-`
+commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/&lt;br>//g" | cut -c 13-`
 getcommit() {
 	if ( ${new_updater_install} || ( ! ${new_version} ) ); then
 		printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
