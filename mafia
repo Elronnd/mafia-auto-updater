@@ -83,17 +83,17 @@ argparse "$@"
 }
 
 # Pretty colours
-yes(){
+yes() {
 	printf "${bright_green}yes${normal}\n"
 }
-no(){
+no() {
 	printf "${bright_red}no${normal}\n"
 }
 # prints done, but that's a keyword
-finished(){
+finished() {
 	printf "${bright_magenta}done!${normal}\n"
 }
-check(){
+check() {
 	printf "${bright_cyan}Checking${normal} if ${bright_yellow}$@${normal}..."
 }
 
@@ -152,7 +152,8 @@ else
 fi
 
 
-commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/&lt;br>//g" | cut -c 13-`
+version_number=`curl "${COMMITURL}" 2>/dev/null | sed -n 12p | sed -e "s/ *//g" -e "s/<a>//g" -e "s/<\/a>//g"`
+commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/ *<\/b><br \/>//g" -e "s/<\/div><\/td>.*//g"`
 getcommit() {
 	if ( ${new_updater_install} || ( ! ${new_version} ) ); then
 		printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
@@ -175,8 +176,7 @@ getcommit() {
 # one with the download links), strip away everything before the URL
 # (chop off the first 427 chars), then chop everything after the URL (get
 # only the first 18 chars).
-download=$URL/`curl $URL 2>/dev/null|sed -n 11p|cut -c 427-|cut -c 1-18`
-version_number=`echo $download|cut -c 80-|cut -c 1-5`
+download=$URL/KoLmafia-${version_number}.jar
 if ( ! $new_updater_install ); then
 	if [ ! $version_number = $version_number_old ]; then
 		new_version=true
