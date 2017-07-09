@@ -153,7 +153,8 @@ fi
 
 
 version_number=`curl "${COMMITURL}" 2>/dev/null | sed -n 12p | sed -e "s/ *//g" -e "s/<a>//g" -e "s/<\/a>//g"`
-commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/ *<\/b><br \/>//g" -e "s/<\/div><\/td>.*//g"`
+download=$URL/KoLmafia-${version_number}.jar
+
 getcommit() {
 	if ( ${new_updater_install} || ( ! ${new_version} ) ); then
 		printf "${green}Revision${normal} ${red}#${version_number},${normal} ${blue}\"${underline}${commitmsg}${normal}${blue}\"${normal}\n"
@@ -172,11 +173,6 @@ getcommit() {
 	fi
 }
 
-# Short explanation: fetch builds.kolmafia.us, get line 11 (which is the
-# one with the download links), strip away everything before the URL
-# (chop off the first 427 chars), then chop everything after the URL (get
-# only the first 18 chars).
-download=$URL/KoLmafia-${version_number}.jar
 if ( ! $new_updater_install ); then
 	if [ ! $version_number = $version_number_old ]; then
 		new_version=true
@@ -188,6 +184,8 @@ fi
 
 if ( $new_updater_install || $session_interrupted ); then
 	new_file=true
+
+	commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/ *<\/b><br \/>//g" -e "s/<\/div><\/td>.*//g"`
 	curl $download > $ROOT_DIR/$version_number.part 2>/dev/null
 	finished
 else
@@ -195,11 +193,14 @@ else
 		yes
 		new_file=true
 		printf "${bright_cyan}Downloading${normal} the ${bright_yellow}latest version of${normal} ${magenta}${underline}KoLmafia${normal}..."
-		rm -f $ROOT_DIR/*
+		rm -rf $ROOT_DIR/*
+
+		commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/ *<\/b><br \/>//g" -e "s/<\/div><\/td>.*//g"`
 		curl $download > $ROOT_DIR/$version_number.part 2>/dev/null
 		finished
 	else
 		printf "${bright_magenta}KoLmafia is up to date!${normal}\n"
+		commitmsg="$commitmsg_old"
 		new_file=false
 	fi
 
