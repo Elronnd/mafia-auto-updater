@@ -152,7 +152,7 @@ else
 fi
 
 
-version_number=`curl "${COMMITURL}" 2>/dev/null | sed -n 12p | sed -e "s/ *//g" -e "s/<a>//g" -e "s/<\/a>//g"`
+version_number=`curl "${COMMITURL}" 2>/dev/null | grep -P '^\s*<a>\d*<\/a>' | sed -e "s/\s*//g" -e "s/<a>//g" -e "s/<\/a>//g"`
 download=$URL/KoLmafia-${version_number}.jar
 
 getcommit() {
