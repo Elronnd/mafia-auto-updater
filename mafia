@@ -8,8 +8,8 @@ fi
 
 ROOT_DIR=${MAFIA_DIR}/program
 VERSION_FILE=${MAFIA_DIR}/version
-URL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
-COMMITURL=http://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
+URL=https://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/artifact/dist/
+COMMITURL=https://ci.kolmafia.us/job/Kolmafia/lastSuccessfulBuild/changes
 
 if [ -f $VERSION_FILE ]; then
 	version_number_old=`sed -n 1p < $VERSION_FILE`
@@ -152,7 +152,7 @@ else
 fi
 
 
-version_number=`curl "${COMMITURL}" 2>/dev/null | grep -P '^\s*<a>\d*<\/a>' | sed -e "s/\s*//g" -e "s/<a>//g" -e "s/<\/a>//g"`
+version_number=`curl "${COMMITURL}" 2>/dev/null | grep '^\s*<a>[0-9]*<\/a>' | perl -pe 's/.*?(\d+).*/\1/g'`
 download=$URL/KoLmafia-${version_number}.jar
 
 getcommit() {
@@ -181,12 +181,11 @@ if ( ! $new_updater_install ); then
 	fi
 fi
 
-
 if ( $new_updater_install || $session_interrupted ); then
 	new_file=true
 
-	commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/ *<\/b><br \/>//g" -e "s/<\/div><\/td>.*//g"`
-	curl $download > $ROOT_DIR/$version_number.part 2>/dev/null
+	commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 36p | sed -e "s/ *<\/b><br \/>//g" -e "s/<\/div><\/td>.*//g"`
+	curl $download -o $ROOT_DIR/$version_number.part 2>/dev/null
 	finished
 else
 	if $new_version; then
@@ -196,7 +195,7 @@ else
 		rm -rf $ROOT_DIR/*
 
 		commitmsg=`curl "${COMMITURL}" 2>/dev/null | sed -n 14p | sed -e "s/ *<\/b><br \/>//g" -e "s/<\/div><\/td>.*//g"`
-		curl $download > $ROOT_DIR/$version_number.part 2>/dev/null
+		curl $download -o $ROOT_DIR/$version_number.part 2>/dev/null
 		finished
 	else
 		printf "${bright_magenta}KoLmafia is up to date!${normal}\n"
